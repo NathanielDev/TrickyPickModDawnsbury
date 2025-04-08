@@ -7,6 +7,7 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics.Rules;
 
 namespace Dawnsbury.Mods.Weapons.TrickyPick
 {
@@ -23,9 +24,12 @@ namespace Dawnsbury.Mods.Weapons.TrickyPick
                 if (item.HasTrait(ModularBPS))
                 {
                     List<(string,DamageKind)> prevAddDamage = item.WeaponProperties.AdditionalDamage;
+                    Delegates.EffectOnEachTarget oldOnTarget = item.WeaponProperties.OnTarget;
                     item.WeaponProperties = new WeaponProperties(item.WeaponProperties.Damage, newDamageType);
-                    
-                    foreach ((string,DamageKind) addDamage in prevAddDamage)
+                    //Transfer effects other than damage from runes to weapon.
+                    item.WeaponProperties = item.WeaponProperties.WithOnTarget(oldOnTarget);
+
+                    foreach ((string, DamageKind) addDamage in prevAddDamage)
                     {
                         item.WeaponProperties = item.WeaponProperties.WithAdditionalDamage(addDamage.Item1, addDamage.Item2);
                     }
