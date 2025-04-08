@@ -25,9 +25,11 @@ namespace Dawnsbury.Mods.Weapons.TrickyPick
                 {
                     List<(string,DamageKind)> prevAddDamage = item.WeaponProperties.AdditionalDamage;
                     Delegates.EffectOnEachTarget oldOnTarget = item.WeaponProperties.OnTarget;
+                    int oldItemBonus = item.WeaponProperties.ItemBonus;
                     item.WeaponProperties = new WeaponProperties(item.WeaponProperties.Damage, newDamageType);
                     //Transfer effects other than damage from runes to weapon.
                     item.WeaponProperties = item.WeaponProperties.WithOnTarget(oldOnTarget);
+                    item.WeaponProperties.ItemBonus = oldItemBonus;
 
                     foreach ((string, DamageKind) addDamage in prevAddDamage)
                     {
