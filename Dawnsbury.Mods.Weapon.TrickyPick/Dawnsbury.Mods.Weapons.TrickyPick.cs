@@ -14,7 +14,7 @@ namespace Dawnsbury.Mods.Weapons.TrickyPick
     public class TrickyPickMod
     {
         //Might want to have these to another file.
-        public static readonly Trait ModularBPS = ModManager.RegisterTrait("Modular (B, P or S)", new TraitProperties("Modular (B, P or S)", true, "Implementation works the same as Versatile B, P and S.", relevantForShortBlock: true));
+        public static readonly Trait ModularBPS = ModManager.RegisterTrait("Modular (B, P or S)", new TraitProperties("Modular (B, P or S)", true, "The weapon has multiple configurations that you can switch between using an Interact action. Typically, switching between configurations of a modular weapon allows it to deal different types of damage (listed in the trait, such as “modular B, P, or S”).", relevantForShortBlock: true));
 
         //this will generate a bug if the player is dual wielding tricky picks and can still interact with the weapon somehow
         public static void SwitchWeaponDmgType (Creature owner, DamageKind newDamageType)
@@ -39,8 +39,17 @@ namespace Dawnsbury.Mods.Weapons.TrickyPick
                 }
             }
         }
-        
-        
+
+        public static string HasFreeHandToManipulate (Creature owner)
+        {
+            if (!owner.HasFreeHand)
+            {
+                return "You don't have a free hand to interact with the weapon.";
+            }
+            return null;
+        }
+
+
         [DawnsburyDaysModMainMethod]
         public static void LoadMod()
         {
@@ -60,9 +69,9 @@ namespace Dawnsbury.Mods.Weapons.TrickyPick
                                 // TODO: clean this up, ModdedIllustration definition can be in a separate file along with other commonly used stuff
                                 PossibilitySection damageTypesMenu = new PossibilitySection("Damage Type Switch Menu");
                                 SubmenuPossibility InteractMenu = new SubmenuPossibility(new ModdedIllustration("TPAssets/TrickyPick.png"), "Adjust Tricky Pick", PossibilitySize.Full);
-                                ActionPossibility toBludgeoning = new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Bludgeoning.png"), "Switch To Bludgeoning Damage", new Trait[1] { Trait.Manipulate }, "Interact with your weapon to switch its damage type to Bludgeoning", Target.Self()).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Bludgeoning)));
-                                ActionPossibility toPiercing = new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Piercing.png"), "Switch To Piercing Damage", new Trait[1] { Trait.Manipulate }, "Interact with your weapon to switch its damage type to Piercing", Target.Self()).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Piercing)));
-                                ActionPossibility toSlashing= new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Slashing.png"), "Switch To Slashing Damage", new Trait[1] { Trait.Manipulate }, "Interact with your weapon to switch its damage type to Slashing", Target.Self()).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Slashing)));
+                                ActionPossibility toBludgeoning = new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Bludgeoning.png"), "Switch To Bludgeoning Damage", new Trait[1] { Trait.Interact }, "Interact with your weapon to switch its damage type to Bludgeoning", Target.Self().WithAdditionalRestriction((Creature owner) => HasFreeHandToManipulate(owner))).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Bludgeoning)));
+                                ActionPossibility toPiercing = new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Piercing.png"), "Switch To Piercing Damage", new Trait[1] { Trait.Interact }, "Interact with your weapon to switch its damage type to Piercing", Target.Self().WithAdditionalRestriction((Creature owner) => HasFreeHandToManipulate(owner))).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Piercing)));
+                                ActionPossibility toSlashing= new ActionPossibility(new CombatAction(effect.Owner, new ModdedIllustration("TPAssets/Slashing.png"), "Switch To Slashing Damage", new Trait[1] { Trait.Interact }, "Interact with your weapon to switch its damage type to Slashing", Target.Self().WithAdditionalRestriction((Creature owner) => HasFreeHandToManipulate(owner))).WithActionCost(1).WithEffectOnSelf(self => SwitchWeaponDmgType(self, DamageKind.Slashing)));
                                 switch (TrickyPick.WeaponProperties.DamageKind)
                                 {
                                     case DamageKind.Bludgeoning:
